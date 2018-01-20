@@ -5,14 +5,54 @@ import java.util.List;
 
 public class ProductOfXadjacentDigits {
     private String stringNumber;
+    private int nbrDigits;
 
-    public ProductOfXadjacentDigits(String stringNumber) {
-        this.stringNumber = stringNumber;
+    public ProductOfXadjacentDigits(String stringNumber, int nbrDigits) {
+        this.stringNumber = removeSpaces(stringNumber);
+        this.nbrDigits = nbrDigits;
     }
 
-    private List<String> splitStringNumberIntoXPart(int xPart) {
-        this.stringNumber.split("");
-        return null;
+    private String removeSpaces(String stringNumber) {
+        stringNumber = stringNumber.replace("\n", "");
+        return stringNumber;
+    }
+
+    private List<String> getAllPossiblePartsList() {
+        int startFrom;
+        int stopIn = (int) Math.floor(stringNumber.length() / 2);
+        List<String> allPossiblePartsList = new ArrayList<String>();
+
+        for (startFrom = 0; startFrom < stopIn; startFrom++) {
+            allPossiblePartsList.addAll(splitStringNumberIntoXPart(startFrom));
+        }
+
+        return allPossiblePartsList;
+    }
+
+    private List<String> splitStringNumberIntoXPart(int startFrom) {
+        int i;
+        String digitPart;
+        String digitPartsContainer = "";
+        List<String> digitsPartsList = new ArrayList<String>();
+        char digit;
+
+        for (i = startFrom; i < stringNumber.length(); i++) {
+            digit = stringNumber.charAt(i);
+            digitPart = Character.toString(digit);
+
+            if (digitPart.matches("[0-9]+")) {
+                digitPartsContainer = digitPartsContainer.concat(digitPart);
+            } else {
+                continue;
+            }
+
+            if((digitPartsContainer.length() == nbrDigits || i == stringNumber.length() - 1)) {
+                digitsPartsList.add(digitPartsContainer);
+                digitPartsContainer = "";
+            }
+        }
+
+        return digitsPartsList;
     }
 
     private List<Long> convertStringDigitsToLong(List<String> stringDigits) {
@@ -69,18 +109,21 @@ public class ProductOfXadjacentDigits {
         List<Integer> digits = new ArrayList<Integer>();
 
         while (quotient != 0) {
-            quotient = quotient / 10;
             rest = (int) (quotient % 10);
+            quotient = quotient / 10;
             digits.add(rest);
         }
 
         return digits;
     }
 
-    public Long getProductOfXDigits(int nbrDigits) {
-        List<String> stringDigits = splitStringNumberIntoXPart(nbrDigits);
+    public Long getProductOfXDigits() {
+        List<String> stringDigits = getAllPossiblePartsList();
         List<Long> longDigits = convertStringDigitsToLong(stringDigits);
         List<Long> allProducts = getAllProducts(longDigits);
+        for(String part : stringDigits) {
+            System.out.println(part + " possible part");
+        }
         return calculateMaxProduct(allProducts);
     }
 
